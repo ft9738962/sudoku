@@ -2,6 +2,26 @@
 # Date: 2021/05/18
 import sys, time
 
+class node:
+    def __init__(self, x, y):
+        self.h = x
+        self.v = y
+        self.candidates = list(x for x in range(1, 10))
+        self.value = 0
+        self.candLen = len(self.candidates)
+
+    def candUpdate(num=0, removeNum):
+        if not num:
+            try:
+                self.candidates.remove(removeNum)
+                self.canLen -= 1
+            except:
+                print(f"The candidates list {self.candidates} has no value {removeNum}")
+        else:
+            self.value = num
+            self.candidates = []
+            self.candLen = 0
+
 class sodukuSolver:
     def __init__(self) -> None:
         self.body = dict()
