@@ -5,8 +5,8 @@ class recurSudoku:
         self.body = [[0 for _ in range(9)] for _ in range(9)]
         self.answers = []
 
-    def show(self):
-        for line in self.body:
+    def show(body):
+        for line in body:
             print(line)
 
     def initialize(self, d):
@@ -15,20 +15,20 @@ class recurSudoku:
         self.show()
 
     def analyseCandidates(self, x, y):
-        candidates = set(x for x in range(1,9))
+        candidates = set(x for x in range(1,10))
         for i in range(9):
             candidates.discard(self.body[x][i])
             candidates.discard(self.body[i][y])
         for j in range(int(x/3) * 3, int(x/3)*3+3):
             for k in range(int(y/3)*3, int(y/3)*3+3):
                 candidates.discard(self.body[j][k])
+        print(candidates)
         if len(candidates):
-            print("c: ", candidates)
             return list(candidates)
         else:
-            return 0
+            return 0 
 
-    def nextStep(self, x, y):
+    def nextStep(self, x,  y):
         if y < 8:
             return x, y+1
         elif y == 8 and x < 8:
@@ -37,7 +37,8 @@ class recurSudoku:
             return -1, 0
 
     def recurGuess(self, x, y): 
-        body = copy(self.body)    
+        body = copy(self.body)
+        x, y = copy(x), copy(y)
         if body[x][y]:
             x, y = self.nextStep(x, y)
             if x < 0:
@@ -46,13 +47,11 @@ class recurSudoku:
             else:
                 self.recurGuess(x, y)
         else:
-            print("x: ",x, "y: ",y)
-            self.show()
-            print(" ")
             candidates = self.analyseCandidates(x, y)
             
             if candidates:
                 if len(candidates) == 1:
+                    print("input: ",x," ", y, " ",candidates[0])
                     body[x][y] = candidates[0]
                     x, y = self.nextStep(x, y)
                     if x < 0:
@@ -62,6 +61,7 @@ class recurSudoku:
                     self.body = body
                     self.recurGuess(x, y)
                 for c in candidates:
+                    print("input: ", x," ", y, " ",candidates[0])
                     body[x][y] = c
                     x, y = self.nextStep(x, y)
                     if x < 0:
@@ -107,8 +107,8 @@ def main():
     sudoku = recurSudoku()
     sudoku.initialize(d)
     sudoku.recurGuess(0, 0)
-    for i in sudoku.answers:
-       print(i)
+    #for i in sudoku.answers:
+    #   show(i)
 
 if __name__ == "__main__":
     main()
