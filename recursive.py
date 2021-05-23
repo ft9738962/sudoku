@@ -1,80 +1,53 @@
-from copy import copy
+from copy import copy, deepcopy
+import time
 
-class recurSudoku:
+class Sudoku:
     def __init__(self):
         self.body = [[0 for _ in range(9)] for _ in range(9)]
-        self.answers = []
-
-    def show(body):
-        for line in body:
-            print(line)
 
     def initialize(self, d):
         for k, v in d.items():
             self.body[k[0]][k[1]] = v
-        self.show()
 
-    def analyseCandidates(self, x, y):
-        candidates = set(x for x in range(1,10))
-        for i in range(9):
-            candidates.discard(self.body[x][i])
-            candidates.discard(self.body[i][y])
-        for j in range(int(x/3) * 3, int(x/3)*3+3):
-            for k in range(int(y/3)*3, int(y/3)*3+3):
-                candidates.discard(self.body[j][k])
-        print(candidates)
-        if len(candidates):
-            return list(candidates)
-        else:
-            return 0 
+def show(body):
+    for line in body:
+        print(line)
 
-    def nextStep(self, x,  y):
-        if y < 8:
-            return x, y+1
-        elif y == 8 and x < 8:
-            return x+1, 0
-        else:
-            return -1, 0
+def analyseCandidates(body, x, y):
+    candidates = set(x for x in range(1,10))
+    for i in range(9):
+        candidates.discard(body[x][i])
+        candidates.discard(body[i][y])
+    for j in range(int(x/3) * 3, int(x/3)*3+3):
+        for k in range(int(y/3)*3, int(y/3)*3+3):
+            candidates.discard(body[j][k])
+    if len(candidates):
+        return list(candidates)
+    else:
+        return 0 
 
-    def recurGuess(self, x, y): 
-        body = copy(self.body)
-        x, y = copy(x), copy(y)
-        if body[x][y]:
-            x, y = self.nextStep(x, y)
-            if x < 0:
-                self.answers.append(body)
-                return
-            else:
-                self.recurGuess(x, y)
-        else:
-            candidates = self.analyseCandidates(x, y)
-            
-            if candidates:
-                if len(candidates) == 1:
-                    print("input: ",x," ", y, " ",candidates[0])
-                    body[x][y] = candidates[0]
-                    x, y = self.nextStep(x, y)
-                    if x < 0:
-                        print("finish")
-                        self.answers.append(body)
-                        return
-                    self.body = body
-                    self.recurGuess(x, y)
-                for c in candidates:
-                    print("input: ", x," ", y, " ",candidates[0])
-                    body[x][y] = c
-                    x, y = self.nextStep(x, y)
-                    if x < 0:
-                        print("finish")
-                        self.answers.append(body)
-                        return
-                    self.body = body
-                    self.recurGuess(x, y)
-            else:
-                print("No Answer")
-                return
+def nextStep(x,  y):
+    if y < 8:
+        return [x, y+1]
+    elif y == 8 and x < 8:
+        return [x+1, 0]
+    else:
+        return [-1, 0]
 
-
+def recurGuess(answers, body, pos): 
+    x, y = pos[0], pos[1]
+    b = deepcopy(body)
+    if x < 0:
+        answers.append(b)
+        return
+    elif b[x][y]:
+        recurGuess(answers, b, nextStep(x, y))
+    else:
+        candidates = analyseCandidates(body, x, y)
+        if candidates:
+            for c in candidates:
+                b[x][y] = c
+                recurGuess(answers, b, nextStep(x,y)) 
 
 def main():
     d = {
@@ -103,12 +76,20 @@ def main():
         (8, 3): 5,
         (8, 7): 1
     }
-
-    sudoku = recurSudoku()
+    
+    answers = []
+    sudoku = Sudoku()
     sudoku.initialize(d)
-    sudoku.recurGuess(0, 0)
-    #for i in sudoku.answers:
-    #   show(i)
+    print("Origin")
+    show(sudoku.body)
+    bg = time.time()
+    recurGuess(answers, sudoku.body, [0, 0])
+    print(time.time()-bg)
+    ct = 1 
+    for i in answers:
+        print("answer: ", ct)
+        show(i)
+        ct += 1
 
 if __name__ == "__main__":
     main()
